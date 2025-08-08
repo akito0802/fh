@@ -71,9 +71,11 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
   height: 60px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,0.0);
+  background: transparent;
   cursor: pointer;
-  display: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
   z-index: 999;
   padding: 0;
 }
@@ -83,10 +85,6 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
   border-radius: 50%;
 }
 #topBtn.show {
-  display: block;
-  animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-  from {opacity:0; transform: translateY(20px);}
-  to {opacity:1; transform: translateY(0);}
+  opacity: 1;
+  pointer-events: auto;
 }

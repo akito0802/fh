@@ -291,7 +291,7 @@ document.querySelector("#resetBtn").addEventListener("click", ()=>{
 render();
 
 
-// トップへ戻るボタン動作
+// トップへ戻るボタン
 const topBtn = document.querySelector("#topBtn");
 window.addEventListener("scroll", () => {
   if (window.scrollY > 200) {
