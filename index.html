@@ -3,70 +3,64 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>冷蔵庫ストック管理</title>
-  <meta name="description" content="冷蔵庫の在庫をサクッと管理。数量と日付を入力して保存。">
+  <title>冷蔵庫ストック管理（カテゴリ版）</title>
+  <meta name="description" content="冷蔵庫の在庫をカテゴリ別に管理。数量と日付を入力して保存。">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
-    <h1>冷蔵庫ストック管理</h1>
+    <h1>冷蔵庫ストック管理（カテゴリ）</h1>
     <div class="actions">
-      <input id="search" type="search" placeholder="検索（例：卵・醤油）">
+      <input id="search" type="search" placeholder="検索（例：卵・醤油・野菜）">
+      <select id="catFilter">
+        <option value="">全カテゴリ</option>
+      </select>
       <button id="addItemBtn" title="カスタム項目を追加">＋項目追加</button>
       <button id="exportBtn" title="CSVに書き出し">書き出し</button>
-      <label class="import-label">
-        読み込み
-        <input id="importInput" type="file" accept=".csv">
-      </label>
+      <label class="import-label">読み込み<input id="importInput" type="file" accept=".csv"></label>
       <button id="resetBtn" class="danger" title="数量と日付をクリア">リセット</button>
     </div>
+    <nav id="toc"></nav>
   </header>
 
-  <main>
-    <div class="help">
-      <details>
-        <summary>使い方</summary>
-        <ul>
-          <li>各項目の <b>数量</b> と <b>日付</b> を入力すると自動で保存（この端末のブラウザに保存）</li>
-          <li><b>今日</b> ボタンで今日の日付を一発入力</li>
-          <li>並び替え：<button class="sort" data-sort="name">名前</button> / <button class="sort" data-sort="qty">数量</button> / <button class="sort" data-sort="date">日付</button></li>
-        </ul>
-      </details>
-    </div>
-
-    <table id="stockTable">
-      <thead>
-        <tr>
-          <th>項目</th>
-          <th class="qty-col">数量</th>
-          <th>日付</th>
-          <th class="tools-col">操作</th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <!-- JSで描画 -->
-      </tbody>
-    </table>
+  <main id="content">
+    <!-- JSでカテゴリごとにテーブルを差し込む -->
   </main>
 
   <footer>
     <small>データはローカル保存（localStorage）。GitHub Pagesでそのまま公開OK。</small>
   </footer>
 
+  <template id="sectionTemplate">
+    <section class="category">
+      <h2 class="cat-title"></h2>
+      <div class="cat-actions">
+        並び替え：
+        <button class="sort" data-sort="name">名前</button>
+        <button class="sort" data-sort="qty">数量</button>
+        <button class="sort" data-sort="date">日付</button>
+        <button class="collapse">折りたたむ</button>
+      </div>
+      <table class="stockTable">
+        <thead>
+          <tr>
+            <th>項目</th><th class="qty-col">数量</th><th>日付</th><th class="tools-col">操作</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </template>
+
   <template id="rowTemplate">
     <tr>
       <td class="name"></td>
-      <td class="qty-col">
-        <input class="qty" type="number" min="0" step="1" inputmode="numeric">
-      </td>
+      <td class="qty-col"><input class="qty" type="number" min="0" step="1" inputmode="numeric"></td>
       <td class="date-col">
         <div class="date-group">
-          <select class="y"></select>
-          <span>年</span>
-          <select class="m"></select>
-          <span>月</span>
-          <select class="d"></select>
-          <span>日</span>
+          <select class="y"></select><span>年</span>
+          <select class="m"></select><span>月</span>
+          <select class="d"></select><span>日</span>
           <button class="today">今日</button>
         </div>
       </td>
@@ -82,6 +76,9 @@
     <form method="dialog" id="addForm">
       <h3>項目を追加</h3>
       <input id="newName" type="text" placeholder="例：バナナ" required>
+      <label>カテゴリ
+        <select id="newCat"></select>
+      </label>
       <div class="dialog-actions">
         <button value="cancel">キャンセル</button>
         <button id="addConfirm" value="default">追加</button>
