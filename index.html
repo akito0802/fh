@@ -3,18 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>冷蔵庫ストック管理（カテゴリ版）</title>
-  <meta name="description" content="冷蔵庫の在庫をカテゴリ別に管理。数量と日付を入力して保存。">
+  <title>冷蔵庫ストック管理（クラウド同期・簡易ログイン）</title>
+  <meta name="description" content="カテゴリ別の在庫管理。ログインしてクラウド同期できます。">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="env.js"></script>
 </head>
 <body>
   <header>
-    <h1>冷蔵庫ストック管理（カテゴリ）</h1>
+    <h1>冷蔵庫ストック管理（クラウド）</h1>
     <div class="actions">
       <input id="search" type="search" placeholder="検索（例：卵・醤油・野菜）">
       <select id="catFilter">
         <option value="">全カテゴリ</option>
       </select>
+
+      <span id="authArea">
+        <button id="loginBtn">ログイン</button>
+        <button id="logoutBtn" class="ghost" hidden>ログアウト</button>
+        <span id="userEmail" class="muted" hidden></span>
+      </span>
+
+      <button id="syncBtn" title="クラウドと同期" disabled>同期</button>
+      <span id="syncStatus" class="muted">オフライン保存</span>
+
       <button id="addItemBtn" title="カスタム項目を追加">＋項目追加</button>
       <button id="exportBtn" title="CSVに書き出し">書き出し</button>
       <label class="import-label">読み込み<input id="importInput" type="file" accept=".csv"></label>
@@ -23,19 +35,44 @@
     <nav id="toc"></nav>
   </header>
 
-  <main id="content">
-    <!-- JSでカテゴリごとにテーブルを差し込む -->
-  </main>
+  <main id="content"></main>
 
-<!-- トップへ戻るボタン -->
-<button id="topBtn" title="トップへ">
-  <img src="top-button-icon.png" alt="トップへ">
-</button>
-
+  <!-- トップへ戻るボタン -->
+  <button id="topBtn" title="トップへ">
+    <img src="top-button-icon.png" alt="トップへ">
+  </button>
 
   <footer>
-    <small>データはローカル保存（localStorage）。GitHub Pagesでそのまま公開OK。</small>
+    <small>ローカル保存＋任意でクラウド同期（Supabase）。</small>
   </footer>
+
+  <!-- 追加・ログインダイアログ -->
+  <dialog id="addDialog">
+    <form method="dialog" id="addForm">
+      <h3>項目を追加</h3>
+      <input id="newName" type="text" placeholder="例：バナナ" required>
+      <label>カテゴリ
+        <select id="newCat"></select>
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel">キャンセル</button>
+        <button id="addConfirm" value="default">追加</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="loginDialog">
+    <form method="dialog" id="loginForm">
+      <h3>かんたんログイン</h3>
+      <p class="muted small">メールアドレスにワンタイムコードを送ります（パスワード不要）。</p>
+      <input id="emailInput" type="email" placeholder="you@example.com" required>
+      <div class="dialog-actions">
+        <button value="cancel">キャンセル</button>
+        <button id="loginConfirm" value="default">送信</button>
+      </div>
+      <p id="loginHelp" class="muted small" style="display:none;">メール内のリンク/コードで認証してください。戻ったら自動的にログインします。</p>
+    </form>
+  </dialog>
 
   <template id="sectionTemplate">
     <section class="category">
@@ -49,9 +86,7 @@
       </div>
       <table class="stockTable">
         <thead>
-          <tr>
-            <th>項目</th><th class="qty-col">数量</th><th>日付</th><th class="tools-col">操作</th>
-          </tr>
+          <tr><th>項目</th><th class="qty-col">数量</th><th>日付</th><th class="tools-col">操作</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -77,20 +112,6 @@
       </td>
     </tr>
   </template>
-
-  <dialog id="addDialog">
-    <form method="dialog" id="addForm">
-      <h3>項目を追加</h3>
-      <input id="newName" type="text" placeholder="例：バナナ" required>
-      <label>カテゴリ
-        <select id="newCat"></select>
-      </label>
-      <div class="dialog-actions">
-        <button value="cancel">キャンセル</button>
-        <button id="addConfirm" value="default">追加</button>
-      </div>
-    </form>
-  </dialog>
 
   <script type="module" src="app.js"></script>
 </body>
